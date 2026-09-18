@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from app.api.v1.health import router as health_router
-app = FastAPI()
+from app.core.config import settings
+app = FastAPI(title=settings.app_name)
 
 app.include_router(health_router , 
                    prefix="/api/v1"
                    )
-                   
