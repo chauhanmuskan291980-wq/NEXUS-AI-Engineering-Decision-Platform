@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-
+from app.exceptions.user import UserAlreadyExistsError
 
 class UserService:
 
@@ -20,11 +20,19 @@ class UserService:
         )
 
     def create_user(
-        self,
-        db: Session,
-        user: User,
+    self,
+    db: Session,
+    user: User,
     ) -> User:
-        return self.user_repository.create(
-            db,
-            user,
-        )
+     existing_user = self.get_user_by_email(
+        db,
+        user.email,
+    )
+
+     if existing_user:
+        raise UserAlreadyExistsError()
+
+     return self.user_repository.create(
+        db,
+        user,
+    )
