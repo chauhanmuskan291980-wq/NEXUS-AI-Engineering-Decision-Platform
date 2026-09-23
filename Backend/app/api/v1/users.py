@@ -25,7 +25,9 @@ def create_user(
     try:
         created_user = user_service.create_user(
             db,
-            user,
+            email,
+            full_name,
+            password,
         )
     except UserAlreadyExistsError:
         raise HTTPException(
