@@ -3,31 +3,24 @@ from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.exceptions.user import UserAlreadyExistsError
 from app.models.user import User
+from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import UserService
 
 router = APIRouter()
 
 user_service = UserService()
-@router.post("/")
+@router.post("/",response_model=UserResponse)
 def create_user(
-    email:str,
-    full_name: str,
-    password:str,
+    user_data : UserCreate,
     db:Session = Depends(get_db)
 ):
-    user = User(
-        email=email,
-        hashed_password = password,
-        full_name= full_name,
-        role="engineer"
-    )
 
     try:
         created_user = user_service.create_user(
             db,
-            email,
-            full_name,
-            password,
+            user_data.email,
+            user_data.full_name,
+            user_data.password,
         )
     except UserAlreadyExistsError:
         raise HTTPException(
@@ -35,9 +28,4 @@ def create_user(
             detail="A user with this email already exists."
         )
 
-    return {
-        "id":created_user.id,
-        "email":created_user.email,
-        "full_name":created_user.full_name,
-        "role":created_user.role
-    }
+    return created_user
